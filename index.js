@@ -1,11 +1,7 @@
 import * as dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import {
-  authentification,
-  myInfo,
-  register,
-} from "./controllers/user-controller.js";
+import * as UserController from "./controllers/user-controller.js";
 import checkAuth from "./utils/check-auth.js";
 import {
   registerValidation,
@@ -29,11 +25,12 @@ await mongoose
 
 app.use(express.json());
 
-app.post("/auth/login", loginValidation, authentification);
-app.post("/auth/register", registerValidation, register);
-app.get("/auth/me", checkAuth, myInfo);
+app.post("/auth/login", loginValidation, UserController.authentification);
+app.post("/auth/register", registerValidation, UserController.register);
+app.get("/auth/me", checkAuth, UserController.myInfo);
 
 app.get("/posts", postValidation, getPost);
+app.get("/posts/:id", postValidation, getPost);
 app.post("/posts", createPost);
 // app.put("/posts", updatePost);
 // app.delete("/posts", deletePost);
