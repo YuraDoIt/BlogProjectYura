@@ -1,1 +1,1 @@
-This is node.js blog project
+This is node.js via React.js blog project
