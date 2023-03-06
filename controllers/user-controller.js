@@ -2,7 +2,9 @@ import { validationResult } from "express-validator";
 import userSchema from "../Models/userSchema.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import * as dotenv from "dotenv";
 
+dotenv.config();
 let login = "admin";
 let password = "nest";
 
@@ -31,7 +33,7 @@ export const register = async (req, res, err) => {
         _id: user._id,
         email: user.email,
       },
-      "secret",
+      process.env.JWT_KEY,
       {
         expiresIn: "30d",
       }
@@ -77,7 +79,7 @@ export const authentification = async (req, res) => {
         _id: user._id,
         email: user.email,
       },
-      "secret",
+      process.env.JWT_KEY,
       {
         expiresIn: "30d",
       }
