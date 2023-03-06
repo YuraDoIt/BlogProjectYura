@@ -1,3 +1,4 @@
+import * as dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import {
@@ -11,15 +12,14 @@ import {
   loginValidation,
   postValidation,
 } from "./validations/validations.js";
-import { createPost } from "./controllers/post-controller.js";
+import { createPost, getPost } from "./controllers/post-controller.js";
 
+dotenv.config();
 const port = 3001;
 const app = express();
 
 await mongoose
-  .connect(
-    "mongodb+srv://yura:12345@cluster0.sidteqi.mongodb.net/blog_db?retryWrites=true&w=majority"
-  )
+  .connect(process.env.MONGO_URL)
   .then(() => {
     console.log("succesfully connected");
   })
@@ -33,7 +33,10 @@ app.post("/auth/login", loginValidation, authentification);
 app.post("/auth/register", registerValidation, register);
 app.get("/auth/me", checkAuth, myInfo);
 
-app.get("/post/create", postValidation, createPost);
+app.get("/posts", postValidation, getPost);
+app.post("/posts", createPost);
+// app.put("/posts", updatePost);
+// app.delete("/posts", deletePost);
 
 app.listen(port, () => {
   console.log(`App listen ${port}`);

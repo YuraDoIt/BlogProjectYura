@@ -22,3 +22,19 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+export const getPost = async (req, res) => {
+  try {
+    const post = await postSchema.find({ title: req.body.title });
+    console.log(post);
+
+    return res.status(200).json({
+      massage: "Successfully created",
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({
+      message: "Cannot create post",
+    });
+  }
+};
