@@ -35,6 +35,7 @@ await mongoose
   });
 
 app.use(express.json());
+app.use("/uploads", express.static("uploads"));
 
 app.post("/auth/login", loginValidation, UserService.authentification);
 app.post("/auth/register", registerValidation, UserService.register);
