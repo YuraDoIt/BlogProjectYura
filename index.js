@@ -1,14 +1,14 @@
 import * as dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import * as UserController from "./controllers/user-controller.js";
+import * as UserService from "./controllers/user-controller.js";
 import checkAuth from "./utils/check-auth.js";
 import {
   registerValidation,
   loginValidation,
   postValidation,
 } from "./validations/validations.js";
-import { createPost, getPost } from "./controllers/post-controller.js";
+import * as PostService from "./controllers/post-controller.js";
 
 dotenv.config();
 const port = 3001;
@@ -25,15 +25,15 @@ await mongoose
 
 app.use(express.json());
 
-app.post("/auth/login", loginValidation, UserController.authentification);
-app.post("/auth/register", registerValidation, UserController.register);
-app.get("/auth/me", checkAuth, UserController.myInfo);
+app.post("/auth/login", loginValidation, UserService.authentification);
+app.post("/auth/register", registerValidation, UserService.register);
+app.get("/auth/me", checkAuth, UserService.myInfo);
 
-app.get("/posts", postValidation, getPost);
-app.get("/posts/:id", postValidation, getPost);
-app.post("/posts", createPost);
+app.get("/posts", postValidation, PostService.getPost);
+app.get("/posts/:id", postValidation, PostService.getPost);
+app.post("/posts", PostService.createPost);
 // app.put("/posts", updatePost);
-// app.delete("/posts", deletePost);
+app.delete("/posts", PostService.deleteAll);
 
 app.listen(port, () => {
   console.log(`App listen ${port}`);
