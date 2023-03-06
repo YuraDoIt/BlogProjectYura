@@ -3,6 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import * as UserService from "./controllers/user-controller.js";
 import checkAuth from "./utils/check-auth.js";
+import multer from "multer";
 import {
   registerValidation,
   loginValidation,
@@ -13,6 +14,16 @@ import * as PostService from "./controllers/post-controller.js";
 dotenv.config();
 const port = 3001;
 const app = express();
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => {
+    cb(null, "uploads");
+  },
+  filename: (_, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
 
 await mongoose
   .connect(process.env.MONGO_URL)
@@ -29,11 +40,18 @@ app.post("/auth/login", loginValidation, UserService.authentification);
 app.post("/auth/register", registerValidation, UserService.register);
 app.get("/auth/me", checkAuth, UserService.myInfo);
 
-app.get("/posts", postValidation, PostService.getPost);
-app.get("/posts/:id", postValidation, PostService.getPost);
-app.post("/posts", PostService.createPost);
-// app.put("/posts", updatePost);
-app.delete("/posts", PostService.deleteAll);
+app.get("/posts", PostService.getPost);
+app.get("/posts/:id", PostService.getPostById);
+app.post("/posts", postValidation, PostService.createPost);
+app.put("/posts/:id", postValidation, PostService.updatePost);
+app.delete("/posts", postValidation, PostService.deletePostAll);
+app.delete("/posts/:id", postValidation, PostService.deleteById);
+
+app.post("/upload", upload.single("image"), (req, res) => {
+  res.status(200).json({
+    url: `/uploads/${req.file.originalname}`,
+  });
+});
 
 app.listen(port, () => {
   console.log(`App listen ${port}`);
