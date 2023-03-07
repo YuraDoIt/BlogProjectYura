@@ -1,15 +1,16 @@
-import * as dotenv from "dotenv";
 import express from "express";
+import * as dotenv from "dotenv";
 import mongoose from "mongoose";
-import * as UserService from "./controllers/user-controller.js";
-import checkAuth from "./utils/check-auth.js";
 import multer from "multer";
+
+import { PostService, UserService } from "./controllers/controller-export.js";
+import checkAuth from "./utils/check-auth.js";
+import handleValidationError from "./validations/handleValidationError.js";
 import {
-  registerValidation,
   loginValidation,
   postValidation,
+  registerValidation,
 } from "./validations/validations.js";
-import * as PostService from "./controllers/post-controller.js";
 
 dotenv.config();
 const port = 3001;
@@ -37,16 +38,35 @@ await mongoose
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
-app.post("/auth/login", loginValidation, UserService.authentification);
-app.post("/auth/register", registerValidation, UserService.register);
+const PostRouter = express.Router();
+PostRouter.get("/", PostService.getPost);
+PostRouter.get("/:id", PostService.getPostById);
+PostRouter.post("/", PostService.createPost);
+PostRouter.put("/:id", PostService.updatePost);
+PostRouter.delete("/", PostService.deletePostAll);
+PostRouter.delete("/:id", postValidation, PostService.deleteById);
+app.use("/posts", PostRouter);
+
+app.post(
+  "/auth/login",
+  loginValidation,
+  handleValidationError,
+  UserService.authentification
+);
+app.post(
+  "/auth/register",
+  registerValidation,
+  handleValidationError,
+  UserService.register
+);
 app.get("/auth/me", checkAuth, UserService.myInfo);
 
-app.get("/posts", PostService.getPost);
-app.get("/posts/:id", PostService.getPostById);
-app.post("/posts", postValidation, PostService.createPost);
-app.put("/posts/:id", postValidation, PostService.updatePost);
-app.delete("/posts", postValidation, PostService.deletePostAll);
-app.delete("/posts/:id", postValidation, PostService.deleteById);
+// app.get("/posts", PostService.getPost);
+// app.get("/posts/:id", PostService.getPostById);
+// app.post("/posts", postValidation, PostService.createPost);
+// app.put("/posts/:id", postValidation, PostService.updatePost);
+// app.delete("/posts", postValidation, PostService.deletePostAll);
+// app.delete("/posts/:id", postValidation, PostService.deleteById);
 
 app.post("/upload", upload.single("image"), (req, res) => {
   res.status(200).json({
